@@ -1,8 +1,8 @@
-{.compile: "lib/xxhash.c".}
+{.compile: "private/xxhash.c".}
 
 
-proc XXH32*(input: cstring, length: csize, seed: cuint): cuint {.cdecl, importc: "XXH32", header: "../lib/xxhash.h".}
-proc XXH64*(input: cstring, length: csize, seed: culonglong): culonglong  {.cdecl, importc: "XXH32", header: "../lib/xxhash.h".}
+proc XXH32*(input: cstring, length: csize, seed: cuint): cuint {.cdecl, importc: "XXH32", header: "../private/xxhash.h".}
+proc XXH64*(input: cstring, length: csize, seed: culonglong): culonglong  {.cdecl, importc: "XXH32", header: "../private/xxhash.h".}
 
 
 proc XXH32*(input: string, seed: cuint): uint32 {.inline.} =
