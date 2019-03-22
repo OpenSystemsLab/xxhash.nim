@@ -1,24 +1,16 @@
-{.compile: "private/xxhash.c".}
+{.compile: "private/xxHash/xxhash.c".}
 
 
-proc XXH32*(input: cstring, length: csize, seed: cuint): cuint {.cdecl, importc: "XXH32", header: "../private/xxhash.h".}
-proc XXH64*(input: cstring, length: csize, seed: culonglong): culonglong  {.cdecl, importc: "XXH32", header: "../private/xxhash.h".}
+proc XXH32*(input: cstring, length: int, seed: uint32): uint32 {.cdecl, importc: "XXH32".}
+proc XXH64*(input: cstring, length: int, seed: uint64): uint64  {.cdecl, importc: "XXH64".}
 
 
-proc XXH32*(input: string, seed: cuint): uint32 {.inline.} =
-  XXH32(input.cstring, input.len, seed)
+proc XXH32*(input: string, seed = 0): uint32 {.inline.} =
+  XXH32(input.cstring, input.len, seed.uint32)
 
-proc XXH64*(input: string, seed: cuint): uint64{.inline.} =
-  XXH32(input.cstring, input.len, seed)
-
-proc XXH32*(input: string): uint32 {.inline.} =
-  XXH32(input.cstring, input.len, 0)
-
-proc XXH64*(input: string): uint64 {.inline.} =
-  XXH32(input.cstring, input.len, 0)
-
+proc XXH64*(input: string, seed = 0): uint64 {.inline.} =
+  XXH64(input.cstring, input.len, seed.uint64)
 
 when isMainModule:
   assert 3794352943.uint32 == XXH32("Nobody inspects the spammish repetition")
-  assert 1740325085.uint64 == XXH64("xxhash", 20141025)
-  echo 1740325085.uint64
+  assert 0xB559B98D844E0635.uint64 == XXH64("xxhash", 20141025)
