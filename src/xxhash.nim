@@ -12,5 +12,6 @@ proc XXH64*(input: string, seed = 0): uint64 {.inline.} =
   XXH64(input.cstring, input.len, seed.uint64)
 
 when isMainModule:
-  assert 3794352943.uint32 == XXH32("Nobody inspects the spammish repetition")
-  assert 0xB559B98D844E0635.uint64 == XXH64("xxhash", 20141025)
+  assert 3794352943'u32 == XXH32("Nobody inspects the spammish repetition")
+  assert 0xB559B98D844E0635'u64 == XXH64("xxhash", 20141025)
+

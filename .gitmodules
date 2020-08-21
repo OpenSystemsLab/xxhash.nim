@@ -1,3 +1,3 @@
 [submodule "private/xxHash"]
-	path = private/xxHash
-	url = https://github.com/Cyan4973/xxHash
+	path = src/private/xxHash
+	url = https://github.com/Cyan4973/xxHash.git
