@@ -26,23 +26,23 @@ proc XXH32_reset*(state: LLxxh32State, seed: uint32 = 0) {.cdecl, importc: "XXH3
 proc XXH32_update*(state: LLxxh32State, input: cstring, len: int) {.cdecl, importc: "XXH32_update".}
 proc XXH32_digest*(state: LLxxh32State): uint32 {.cdecl, importc: "XXH32_digest".}
 
-proc newXxh32(seed: uint32 = 0): Xxh32State =
+proc newXxh32*(seed: uint32 = 0): Xxh32State =
   result.llstate = XXH32_createState()
   result.llstate.XXH32_reset(seed)
 
-proc update(state: Xxh32State, input: string) =
+proc update*(state: Xxh32State, input: string) =
   state.llstate.XXH32_update(input.cstring, input.len)
 
-proc digest(state: Xxh32State): uint32 =
+proc digest*(state: Xxh32State): uint32 =
   return state.llstate.XXH32_digest()
 
-proc `$`(state: Xxh32State): string =
+proc `$`*(state: Xxh32State): string =
   return $state.digest
 
-proc reset(state: Xxh32State, seed = 0'u32) =
+proc reset*(state: Xxh32State, seed = 0'u32) =
   state.llstate.XXH32_reset(seed)
 
-proc `=destroy`(state: var Xxh32State) =
+proc `=destroy`*(state: var Xxh32State) =
   state.llstate.XXH32_freeState()
 
 proc XXH64_createState*(): LLxxh64State {.cdecl, importc: "XXH64_createState".}
@@ -51,23 +51,23 @@ proc XXH64_reset*(state: LLxxh64State, seed: uint64 = 0) {.cdecl, importc: "XXH6
 proc XXH64_update*(state: LLxxh64State, input: cstring, len: int) {.cdecl, importc: "XXH64_update".}
 proc XXH64_digest*(state: LLxxh64State): uint64 {.cdecl, importc: "XXH64_digest".}
 
-proc newXxh64(seed: uint64 = 0): Xxh64State =
+proc newXxh64*(seed: uint64 = 0): Xxh64State =
   result.llstate = XXH64_createState()
   result.llstate.XXH64_reset(seed)
 
-proc update(state: Xxh64State, input: string) =
+proc update*(state: Xxh64State, input: string) =
   state.llstate.XXH64_update(input.cstring, input.len)
 
-proc digest(state: Xxh64State): uint64 =
+proc digest*(state: Xxh64State): uint64 =
   return state.llstate.XXH64_digest()
 
-proc `$`(state: Xxh64State): string =
+proc `$`*(state: Xxh64State): string =
   return $state.digest
 
-proc reset(state: Xxh64State, seed = 0'u64) =
+proc reset*(state: Xxh64State, seed = 0'u64) =
   state.llstate.XXH64_reset(seed)
 
-proc `=destroy`(state: var Xxh64State) =
+proc `=destroy`*(state: var Xxh64State) =
   state.llstate.XXH64_freeState()
 
 when isMainModule:
@@ -103,6 +103,14 @@ when isMainModule:
     state.update(msg)
     assert state.digest() == msgh32
     assert $state == $msgh32
+
+    state.reset()
+    state.update("Nobody ")
+    state.update("inspects ")
+    state.update("the spammish ")
+    state.update("repetition")
+    assert state.digest() == 3794352943'u32
+    assert $state == $3794352943'u32
     state.reset()
 
   block:
