@@ -1,7 +1,6 @@
 {.compile: "private/xxHash/xxhash.c".}
 
 # One-shot functions
-
 proc XXH32*(input: cstring, length: int, seed: uint32): uint32 {.cdecl, importc: "XXH32".}
 proc XXH64*(input: cstring, length: int, seed: uint64): uint64  {.cdecl, importc: "XXH64".}
 
@@ -13,12 +12,12 @@ proc XXH64*(input: string, seed = 0): uint64 {.inline.} =
 
 # Streaming api
 type
-  LLxxh64State = pointer
-  LLxxh32State = pointer
-  Xxh32State = object
-    llstate: LLxxh32State # wrapped in a object for destructor
-  Xxh64State = object
-    llstate: LLxxh64State # wrapped in a object for destructor
+  LLxxh64State* = pointer
+  LLxxh32State* = pointer
+  Xxh32State* = object
+    llstate*: LLxxh32State # wrapped in a object for destructor
+  Xxh64State* = object
+    llstate*: LLxxh64State # wrapped in a object for destructor
 
 proc XXH32_createState*(): LLxxh32State {.cdecl, importc: "XXH32_createState".}
 proc XXH32_freeState*(state: LLxxh32State) {.cdecl, importc: "XXH32_freeState".}
@@ -120,8 +119,3 @@ when isMainModule:
     assert state.digest() == msgh64
     assert $state == $msgh64
     state.reset()
-
-
-
-
-
