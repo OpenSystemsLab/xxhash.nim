@@ -1,14 +1,28 @@
 {.compile: "private/xxHash/xxhash.c".}
 
 # One-shot functions
-proc XXH32*(input: cstring, length: int, seed: uint32): uint32 {.cdecl, importc: "XXH32".}
-proc XXH64*(input: cstring, length: int, seed: uint64): uint64  {.cdecl, importc: "XXH64".}
+proc XXH32*(input: ptr UncheckedArray[byte], length: csize_t, seed: uint32): uint32 {.cdecl, importc: "XXH32".}
+proc XXH64*(input: ptr UncheckedArray[byte], length: csize_t, seed: uint64): uint64  {.cdecl, importc: "XXH64".}
+
+proc XXH32*(input: cstring, length: int, seed: uint32): uint32 {.inline.} =
+  XXH32(cast[ptr UncheckedArray[byte]](input), length.csize_t, seed)
+
+proc XXH64*(input: cstring, length: int, seed: uint64): uint64 {.inline.} =
+  XXH64(cast[ptr UncheckedArray[byte]](input), length.csize_t, seed)
 
 proc XXH32*(input: string, seed = 0): uint32 {.inline.} =
   XXH32(input.cstring, input.len, seed.uint32)
 
 proc XXH64*(input: string, seed = 0): uint64 {.inline.} =
   XXH64(input.cstring, input.len, seed.uint64)
+
+proc XXH3_64bits*(input: ptr UncheckedArray[byte], length: csize_t): uint64 {.cdecl, importc: "XXH3_64bits".}
+proc XXH3_64bits_withSeed*(input: ptr UncheckedArray[byte], length: csize_t, seed: uint64): uint64 {.cdecl, importc: "XXH3_64bits_withSeed".}
+
+proc XXH3_64bits*(input: string): uint64 =
+  XXH3_64bits(cast[ptr UncheckedArray[byte]](unsafeAddr input[0]), input.len.csize_t)
+proc XXH3_64bits_withSeed*(input: string, seed: uint64): uint64 =
+  XXH3_64bits_withSeed(cast[ptr UncheckedArray[byte]](unsafeAddr input[0]), input.len.csize_t, seed)
 
 # Streaming api
 type
@@ -74,6 +88,11 @@ when isMainModule:
     # One Shot
     assert 3794352943'u32 == XXH32("Nobody inspects the spammish repetition")
     assert 0xB559B98D844E0635'u64 == XXH64("xxhash", 20141025)
+
+  block:
+    assert 0x7051CC31E84FF73'u64 == XXH3_64bits("meow")
+    assert 0x4268DCFE699316D8'u64 == XXH3_64bits_withSeed("meow meow meow", 42)
+    assert XXH3_64bits("Abracadabra") == XXH3_64bits_withSeed("Abracadabra", 0)
 
   const msg = "foo"
   const msgh32 = 0xe20f0dd9'u32
