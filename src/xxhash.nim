@@ -28,10 +28,13 @@ proc XXH3_64bits_withSeed*(input: string, seed: uint64): uint64 =
 type
   LLxxh64State* = pointer
   LLxxh32State* = pointer
+  LLxxh3_64State* = pointer
   Xxh32State* = object
     llstate*: LLxxh32State # wrapped in a object for destructor
   Xxh64State* = object
     llstate*: LLxxh64State # wrapped in a object for destructor
+  Xxh3_64State* = object
+    llstate*: LLxxh3_64State # wrapped in a object for destructor
 
 proc XXH32_createState*(): LLxxh32State {.cdecl, importc: "XXH32_createState".}
 proc XXH32_freeState*(state: LLxxh32State) {.cdecl, importc: "XXH32_freeState".}
@@ -57,6 +60,33 @@ proc reset*(state: Xxh32State, seed = 0'u32) =
 
 proc `=destroy`*(state: var Xxh32State) =
   state.llstate.XXH32_freeState()
+
+
+proc XXH3_createState*(): LLxxh3_64State {.cdecl, importc: "XXH3_createState".}
+proc XXH3_freeState*(state: LLxxh3_64State) {.cdecl, importc: "XXH3_freeState".}
+proc XXH3_64_reset*(state: LLxxh3_64State) {.cdecl, importc: "XXH3_64bits_reset".}
+proc XXH3_64_reset_withSeed*(state: LLxxh3_64State, seed: uint64 = 0) {.cdecl, importc: "XXH3_64bits_reset_withSeed".}
+proc XXH3_64_update*(state: LLxxh3_64State, input: cstring, len: int) {.cdecl, importc: "XXH3_64bits_update".}
+proc XXH3_64_digest*(state: LLxxh3_64State): uint64 {.cdecl, importc: "XXH3_64bits_digest".}
+
+proc newXxH3_64*(seed: uint64 = 0): XxH3_64State =
+  result.llstate = XXH3_createState()
+  result.llstate.XXH3_64_reset_withSeed(seed)
+
+proc update*(state: XxH3_64State, input: string) =
+  state.llstate.XXH3_64_update(input.cstring, input.len)
+
+proc digest*(state: XxH3_64State): uint64 =
+  return state.llstate.XXH3_64_digest()
+
+proc `$`*(state: XxH3_64State): string =
+  return $state.digest
+
+proc reset*(state: XxH3_64State, seed = 0'u64) =
+  state.llstate.XXH3_64_reset_withSeed(seed)
+
+proc `=destroy`*(state: var XxH3_64State) =
+  state.llstate.XXH3_freeState()
 
 proc XXH64_createState*(): LLxxh64State {.cdecl, importc: "XXH64_createState".}
 proc XXH64_freeState*(state: LLxxh64State) {.cdecl, importc: "XXH64_freeState".}
