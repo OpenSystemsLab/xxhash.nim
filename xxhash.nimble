@@ -7,4 +7,4 @@ license       = "MIT"
 srcDir        = "src"
 
 [Deps]
-Requires: "nim >= 1.2.6", "nint128 >= 0.3.3"
+Requires: "nim >= 1.2.6, nint128 >= 0.3.3"
