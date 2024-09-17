@@ -77,9 +77,12 @@ proc `$`*(state: Xxh32State): string =
 proc reset*(state: Xxh32State, seed = 0'u32) =
   state.llstate.XXH32_reset(seed)
 
-proc `=destroy`*(state: Xxh32State) =
+proc free*(state: Xxh32State) =
   state.llstate.XXH32_freeState()
 
+when (NimMajor, NimMinor, NimPatch) >= (2, 0, 0):
+  proc `=destroy`*(state: Xxh32State) =
+    state.free()
 
 proc XXH3_createState*(): LLxxh3_64State {.cdecl, importc: "XXH3_createState".}
 proc XXH3_freeState*(state: LLxxh3_64State) {.cdecl, importc: "XXH3_freeState".}
@@ -104,8 +107,12 @@ proc `$`*(state: XxH3_64State): string =
 proc reset*(state: XxH3_64State, seed = 0'u64) =
   state.llstate.XXH3_64_reset_withSeed(seed)
 
-proc `=destroy`*(state: XxH3_64State) =
-  state.llstate.XXH3_freeState()
+proc free*(state: XxH3_64State) =
+    state.llstate.XXH3_freeState()
+
+when (NimMajor, NimMinor, NimPatch) >= (2, 0, 0):
+  proc `=destroy`*(state: XxH3_64State) =
+    state.free()
 
 proc XXH64_createState*(): LLxxh64State {.cdecl, importc: "XXH64_createState".}
 proc XXH64_freeState*(state: LLxxh64State) {.cdecl, importc: "XXH64_freeState".}
@@ -129,8 +136,12 @@ proc `$`*(state: Xxh64State): string =
 proc reset*(state: Xxh64State, seed = 0'u64) =
   state.llstate.XXH64_reset(seed)
 
-proc `=destroy`*(state: Xxh64State) =
+proc free*(state: Xxh64State) =
   state.llstate.XXH64_freeState()
+
+when (NimMajor, NimMinor, NimPatch) >= (2, 0, 0):
+  proc `=destroy`*(state: Xxh64State) =
+    state.free()
 
 proc XXH128_reset*(state: LLxxh3_64State, seed: uint64 = 0) {.cdecl, importc: "XXH3_128bits_reset".}
 proc XXH128_reset_withSeed*(state: LLxxh3_64State, seed: uint64 = 0) {.cdecl, importc: "XXH128_reset_withSeed".}
@@ -161,11 +172,14 @@ proc reset*(state: Xxh128State, seed = 0'u64) =
 proc resetWithSecret*(state: Xxh128State, secret: string) =
   state.llstate.XXH128_reset_withSecret(secret.cstring, secret.len)
 
-proc `=destroy`*(state: Xxh128State) =
+proc free*(state: Xxh128State) =
   state.llstate.XXH3_freeState()
 
+when (NimMajor, NimMinor, NimPatch) >= (2, 0, 0):
+  proc `=destroy`*(state: Xxh128State) =
+    state.free()
+
 when isMainModule:
-  import strutils
   block:
     # One Shot
     assert 3794352943'u32 == XXH32("Nobody inspects the spammish repetition")
@@ -218,6 +232,8 @@ when isMainModule:
     assert state.digest() == 3794352943'u32
     assert $state == $3794352943'u32
     state.reset()
+    when (NimMajor, NimMinor, NimPatch) < (2, 0, 0):
+      state.free()
 
   block:
     # HighLevel Streaming 64bit
@@ -226,3 +242,5 @@ when isMainModule:
     assert state.digest() == msgh64
     assert $state == $msgh64
     state.reset()
+    when (NimMajor, NimMinor, NimPatch) < (2, 0, 0):
+      state.free()
