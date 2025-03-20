@@ -1,6 +1,6 @@
 [Package]
 name          = "xxhash"
-version       = "0.12.0"
+version       = "0.12.1"
 author        = "Huy Doan"
 description   = "xxhash wrapper for Nim"
 license       = "MIT"
